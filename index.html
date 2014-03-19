@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="ko">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0" />
+		<title>Socket Canvas</title>
+		<style>
+			html, body {
+				width: 100%;
+				height: 100%;
+				margin: 0px;
+			}
+		</style>
+	</head>
+	<body>
+		<canvas id="myCanvas">
+			This text is displayed if your browser does not support HTML5 Canvas.
+		</canvas>
+
+		<!-- this area will be placed Script Area -->
+		<script src="http://code.jquery.com/jquery-1.11.0.min.js"></script>
+		<script src="http://code.jquery.com/jquery-migrate-1.2.1.min.js"></script>
+		<script src="/socket.io/socket.io.js"></script>
+
+		<script>
+			var img = new Image();
+
+			var isDraw = false;
+
+			var canvas = document.getElementById('myCanvas');
+			canvas.width = window.innerWidth;
+			canvas.height = window.innerHeight;
+
+			var brush = canvas.getContext('2d');
+			brush.fillStyle = '#FF0000';
+
+			canvas.onmousedown = drawStart;
+			canvas.onmousemove = drawing;
+			canvas.onmouseup = drawEnd;
+
+			function drawStart(e) {
+				isDraw = true;
+				brush.moveTo(mousePos(e).x, mousePos(e).y);
+			}
+
+			function drawing(e) {
+				if (isDraw) {
+					e.preventDefault();
+					brush.lineTo(mousePos(e).x, mousePos(e).y);
+					brush.stroke();
+				}
+			}
+
+			function drawEnd() {
+				isDraw = false;
+				emitCanvas(encodeURIComponent(canvas.toDataURL()));
+				
+			}
+
+			function mousePos(e) {
+				var mouseX = 0, mouseY = 0;
+
+				if (e.offsetX) {
+					mouseX = e.offsetX;
+					mouseY = e.offsetY;
+
+				} else if (e.layerX) {
+					mouseX = e.layerX;
+					mouseY = e.layerY;
+
+				}
+
+				return {
+					x : mouseX,
+					y : mouseY
+				};
+			}
+			
+			function emitCanvas(canvasData){
+				socket.emit('data-changed', {
+					reqData : canvasData
+				});
+			}
+			
+			var socket = io.connect('http://gmcanvas.herokuapp.com/');
+
+			socket.on('data-changed', function(packet) {
+				img.src = decodeURIComponent(packet.resData);
+				brush.drawImage(img, 0, 0);
+			});
+			
+			
+		</script>
+	</body>
+</html>
