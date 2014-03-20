@@ -38,13 +38,9 @@
 			canvas.addEventListener("mousemove", drawing, false);
 			canvas.addEventListener("mouseup", drawEnd, false);
 			
-			canvas.addEventListener("touchstart", alert2, false);
+			canvas.addEventListener("touchstart", drawStart, false);
 			canvas.addEventListener("touchmove", drawing, false);
 			canvas.addEventListener("touchend", drawEnd, false);
-			
-			function alert2(){
-				alert("test");
-			}
 			
 			function drawStart(e) {
 				isDraw = true;
@@ -52,8 +48,8 @@
 			}
 
 			function drawing(e) {
+				e.preventDefault();
 				if (isDraw) {
-					e.preventDefault();
 					brush.lineTo(mousePos(e).x, mousePos(e).y);
 					brush.stroke();
 				}
@@ -69,6 +65,7 @@
 				var mouseX = 0, mouseY = 0;
 				
 				if(jQuery.browser.mobile) {
+					alert("mobile"+e.touches[0].pageX);
 					mouseX = e.touches[0].pageX;
 					mouseY = e.touches[0].pageY;
 				}
