@@ -38,10 +38,10 @@
 			canvas.onmousemove = drawing;
 			canvas.onmouseup = drawEnd;
 			
-			canvas.addEventListener("touchstart", drawStart, false);
-			canvas.addEventListener("touchmove", drawing, false);
-			canvas.addEventListener("touchleave", drawEnd, false);
-			canvas.addEventListener("touchend", drawEnd, false);
+			document.addEventListener("touchstart", drawStart, false);
+			document.addEventListener("touchmove", drawing, false);
+			document.addEventListener("touchleave", drawEnd, false);
+			document.addEventListener("touchend", drawEnd, false);
 
 			function drawStart(e) {
 				isDraw = true;
