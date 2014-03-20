@@ -34,13 +34,13 @@
 			var brush = canvas.getContext('2d');
 			brush.fillStyle = '#FF0000';
 
-			canvas.onmousedown = drawStart;
-			canvas.onmousemove = drawing;
-			canvas.onmouseup = drawEnd;
+			canvas.addEventListener("mousedown", drawStart, false);
+			canvas.addEventListener("mousemove", drawing, false);
+			canvas.addEventListener("mouseup", drawEnd, false);
 			
-			brush.addEventListener("touchstart", drawStart, false);
-			brush.addEventListener("touchmove", drawing, false);
-			brush.addEventListener("touchend", drawEnd, false);
+			canvas.addEventListener("touchstart", drawStart, false);
+			canvas.addEventListener("touchmove", drawing, false);
+			canvas.addEventListener("touchend", drawEnd, false);
 
 			function drawStart(e) {
 				isDraw = true;
@@ -64,9 +64,9 @@
 			function mousePos(e) {
 				var mouseX = 0, mouseY = 0;
 				
-				if(e.pageX) {
-					mouseX = e.pageX;
-					mouseY = e.pageY;
+				if(jQuery.browser.mobile) {
+					mouseX = e.touches[0].pageX;
+					mouseY = e.touches[0].pageY;
 				}
 				else if (e.offsetX) {
 					mouseX = e.offsetX;
