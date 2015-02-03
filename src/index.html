@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="ko">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0" />
+		<title>Socket Canvas</title>
+		<style>
+			html, body {
+				margin: 0px;
+				width: 100%;
+				height: 100%
+			}
+		</style>
+		<!--<script src="mega.js"></script>-->
+	</head>
+	<body>
+		<canvas id="myCanvas">
+			This text is displayed if your browser does not support HTML5 Canvas.
+		</canvas>
+		<!-- this area will be placed Script Area -->
+		<script src="http://code.jquery.com/jquery-1.11.0.min.js"></script>
+		<script src="http://code.jquery.com/jquery-migrate-1.2.1.min.js"></script>
+		<script src="/socket.io/socket.io.js"></script>
+		<script>
+			var isDraw = false;
+
+			var canvas = document.getElementById('myCanvas');
+			canvas.width = window.innerWidth;
+			canvas.height = window.innerHeight;
+
+			var brush = canvas.getContext('2d');
+			brush.fillStyle = '#FF0000';
+
+			canvas.addEventListener("mousedown", drawStart, false);
+			canvas.addEventListener("mousemove", drawing, false);
+			canvas.addEventListener("mouseup", drawEnd, false);
+			
+			canvas.addEventListener("touchstart", drawStart, false);
+			canvas.addEventListener("touchmove", drawing, false);
+			canvas.addEventListener("touchend", drawEnd, false);
+			
+			function drawStart(e) {
+				isDraw = true;
+				brush.moveTo(mousePos(e).x, mousePos(e).y);
+			}
+
+			function drawing(e) {
+				e.preventDefault();
+				if (isDraw) {
+					brush.lineTo(mousePos(e).x, mousePos(e).y);
+					brush.stroke();
+				}
+			}
+
+			function drawEnd() {
+				isDraw = false;
+				emitCanvas(encodeURIComponent(canvas.toDataURL()));
+			}
+
+			function mousePos(e) {
+				var mouseX = 0, mouseY = 0;
+				
+				if(navigator.userAgent.match(/Android/i)|| navigator.userAgent.match(/webOS/i)|| navigator.userAgent.match(/iPhone/i)|| navigator.userAgent.match(/iPad/i)|| navigator.userAgent.match(/iPod/i)|| navigator.userAgent.match(/BlackBerry/i)|| navigator.userAgent.match(/Windows Phone/i)) {
+					mouseX = e.touches[0].pageX;
+					mouseY = e.touches[0].pageY;
+				}
+				else if (e.offsetX) {
+					mouseX = e.offsetX;
+					mouseY = e.offsetY;
+
+				} else if (e.layerX) {
+					mouseX = e.layerX;
+					mouseY = e.layerY;
+				}
+
+				return {
+					x : mouseX,
+					y : mouseY
+				};
+			}
+			
+			function emitCanvas(canvasData){
+				socket.emit('data-changed', {
+					reqData : canvasData
+				});
+			}
+
+
+			//var socket = io.connect('http://10.67.19.74:5000/');
+			var socket = io();
+
+			socket.on('data-changed', function(packet) {
+				var img = new Image();
+				img.src = decodeURIComponent(packet.resData);
+				img.onload = function(){
+					brush.drawImage(img, 0, 0);
+				}
+			})
+		</script>
+	</body>
+</html>
